@@ -1,38 +1,21 @@
 import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-
-
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ColorSelectScreen from "./ColorSelectScreen";
 import GameScreen from "./GameScreen";
+import "./App.css";
 
-const Stack = createStackNavigator();
-
-export default function App() {
+function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="ColorSelect"
-        screenOptions={{
-          headerStyle: { backgroundColor: "#1C1C1C" },
-          headerTintColor: "#fff",
-          headerTitleStyle: { fontWeight: "bold" },
-        }}
-      >
-
-        <Stack.Screen
-          name="ColorSelect"
-          component={ColorSelectScreen}
-          options={{ title: "Elige tu color" }}
-        />
-        <Stack.Screen
-          name="GameScreen"
-          component={GameScreen}
-          options={{ title: "Juego de Ajedrez" }}
-        />
-
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<ColorSelectScreen />} />
+          <Route path="/game" element={<GameScreen />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
+
+export default App;
 
