@@ -1,3 +1,7 @@
+/* ============================================
+   CONTENEDOR PRINCIPAL DEL JUEGO
+   ============================================ */
+/* Contenedor principal que envuelve toda la pantalla del juego */
 .game-container {
     display: flex;
     flex-direction: column;
@@ -9,6 +13,7 @@
     overflow: hidden;
 }
 
+/* Efecto de fondo animado con puntos (estrellas) que se mueven */
 .game-container::before {
     content: '';
     position: absolute;
@@ -21,11 +26,16 @@
     animation: movePattern 20s linear infinite;
 }
 
+/* Animación para el patrón de fondo (movimiento de las estrellas) */
 @keyframes movePattern {
     0% { transform: translate(0, 0); }
     100% { transform: translate(50px, 50px); }
 }
 
+/* ============================================
+   ENCABEZADO DEL JUEGO
+   ============================================ */
+/* Sección del encabezado con el título y el icono del juego */
 .game-header {
     text-align: center;
     margin-bottom: 40px;
@@ -33,17 +43,20 @@
     position: relative;
 }
 
+/* Icono del juego (peón de ajedrez) con animación flotante */
 .game-icon {
     font-size: 60px;
     margin-bottom: 15px;
     animation: float 3s ease-in-out infinite;
 }
 
+/* Animación de flotación para el icono */
 @keyframes float {
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-10px); }
 }
 
+/* Título principal del juego */
 .game-title {
     color: #ffffff;
     font-size: 38px;
@@ -53,31 +66,75 @@
     letter-spacing: 1px;
 }
 
-.game-info {
+/* ============================================
+   CONTENIDO PRINCIPAL (LAYOUT PRINCIPAL)
+   ============================================ */
+/* Contenedor principal que divide la pantalla en izquierda y derecha */
+.main-content {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    margin-bottom: 40px;
+    flex-direction: row;
+    gap: 30px;
     width: 100%;
-    max-width: 600px;
+    max-width: 1400px;
+    align-items: flex-start;
+    align-content: flex-start;
     z-index: 1;
     position: relative;
 }
 
+/* Sección izquierda: contiene controles, jugadores, VS y tablero */
+.left-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
+    justify-content: flex-start;
+    align-self: flex-start;
+}
+
+/* Sección derecha: contiene el historial de partidas */
+.right-section {
+    width: 350px;
+    flex-shrink: 0;
+    z-index: 1;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    align-self: flex-start;
+}
+
+/* ============================================
+   TARJETAS DE JUGADORES
+   ============================================ */
+/* Contenedor que agrupa las tarjetas de ambos jugadores */
+.players-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    position: relative;
+    min-width: 200px;
+}
+
+/* Tarjeta individual de cada jugador */
 .player-card {
     width: 100%;
+    min-width: 200px;
     background: rgba(255, 255, 255, 0.05);
     border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
-    padding: 25px;
+    padding: 20px;
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
 }
 
+/* Estado activo de la tarjeta del jugador (cuando es su turno) */
 .player-card.active {
     border-color: #d4af37;
     background: rgba(212, 175, 55, 0.15);
@@ -85,11 +142,13 @@
     transform: scale(1.02);
 }
 
+/* Icono del rey de ajedrez en la tarjeta del jugador */
 .player-icon {
     font-size: 48px;
     filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
 }
 
+/* Contenedor de los detalles del jugador (nombre y color) */
 .player-details {
     flex: 1;
     display: flex;
@@ -97,6 +156,7 @@
     gap: 5px;
 }
 
+/* Etiqueta con el nombre del jugador */
 .player-label {
     color: #b0b0b0;
     font-size: 14px;
@@ -105,12 +165,14 @@
     letter-spacing: 1px;
 }
 
+/* Color de las piezas del jugador (Blancas/Negras) */
 .player-color {
     color: #ffffff;
     font-size: 24px;
     font-weight: 700;
 }
 
+/* Indicador que muestra "Tu turno" cuando es el turno del jugador */
 .turn-indicator {
     background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
     color: #1a1a1a;
@@ -121,11 +183,28 @@
     animation: pulse 2s ease-in-out infinite;
 }
 
+/* Animación de pulso para el indicador de turno */
 @keyframes pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.8; }
 }
 
+/* ============================================
+   SECCIÓN DEL TABLERO
+   ============================================ */
+/* Contenedor que agrupa las tarjetas de jugadores, VS y el tablero */
+.board-section {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 20px;
+    width: 100%;
+    max-width: 1000px;
+    z-index: 1;
+    position: relative;
+}
+
+/* Divisor "VS" que separa visualmente a los dos jugadores */
 .vs-divider {
     display: flex;
     align-items: center;
@@ -138,29 +217,13 @@
     color: #d4af37;
     font-size: 18px;
     font-weight: 700;
-    position: relative;
+    flex-shrink: 0;
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
 }
 
-.vs-divider::before,
-.vs-divider::after {
-    content: '';
-    position: absolute;
-    width: 100px;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #d4af37, transparent);
-}
-
-.vs-divider::before {
-    left: -110px;
-}
-
-.vs-divider::after {
-    right: -110px;
-}
-
+/* Placeholder del tablero de ajedrez (cuadrado con aspecto 1:1) */
 .board-placeholder {
-    width: 100%;
-    max-width: 600px;
+    flex: 1;
     aspect-ratio: 1;
     background: rgba(0, 0, 0, 0.3);
     border: 3px solid rgba(212, 175, 55, 0.3);
@@ -171,18 +234,22 @@
     backdrop-filter: blur(10px);
     z-index: 1;
     position: relative;
+    min-width: 0;
 }
 
+/* Contenido interno del placeholder del tablero */
 .placeholder-content {
     text-align: center;
 }
 
+/* Icono dentro del placeholder del tablero */
 .placeholder-icon {
     font-size: 80px;
     margin-bottom: 20px;
     opacity: 0.5;
 }
 
+/* Texto principal del placeholder */
 .placeholder-text {
     color: #ffffff;
     font-size: 24px;
@@ -190,9 +257,254 @@
     margin: 0 0 10px 0;
 }
 
+/* Texto secundario del placeholder */
 .placeholder-subtext {
     color: #b0b0b0;
     font-size: 16px;
     margin: 0;
+}
+
+/* ============================================
+   CONTROLES DEL JUEGO
+   ============================================ */
+/* Contenedor de los botones de control (deshacer, movimiento de prueba) */
+.game-controls {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    z-index: 1;
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+    justify-content: center;
+}
+
+/* Estilos base para los botones de control */
+.undo-button,
+.test-move-button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+/* Botón para deshacer la última jugada (usa pila) */
+.undo-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+}
+
+/* Efecto hover del botón deshacer */
+.undo-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Estado deshabilitado del botón deshacer (cuando no hay movimientos) */
+.undo-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Botón para hacer un movimiento de prueba */
+.test-move-button {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: #ffffff;
+}
+
+/* Efecto hover del botón de movimiento de prueba */
+.test-move-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+}
+
+/* ============================================
+   HISTORIAL DE PARTIDAS (Lista/Cola)
+   ============================================ */
+/* Sección completa del historial de movimientos */
+.history-section {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(212, 175, 55, 0.3);
+    border-radius: 20px;
+    padding: 25px;
+    backdrop-filter: blur(10px);
+    z-index: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 600px;
+    height: 600px;
+    overflow: hidden;
+    align-self: flex-start;
+    margin-top: 0;
+}
+
+/* Título del historial */
+.history-title {
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 20px 0;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    flex-shrink: 0;
+}
+
+/* Lista de movimientos (usa estructura de cola - FIFO) */
+.history-list {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 0;
+    max-height: 100%;
+    /* Mantener el scroll siempre visible para evitar desplazamientos */
+    scrollbar-gutter: stable;
+    /* Asegurar que el scroll comience desde arriba */
+    scroll-behavior: smooth;
+}
+
+/* Estilos personalizados para la barra de desplazamiento */
+.history-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.history-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.5);
+    border-radius: 10px;
+}
+
+.history-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 175, 55, 0.7);
+}
+
+/* Item individual de cada movimiento en el historial */
+.history-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border-left: 3px solid #d4af37;
+    transition: all 0.2s ease;
+}
+
+/* Efecto hover en los items del historial */
+.history-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+/* Número del movimiento en el historial */
+.move-number {
+    color: #d4af37;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+/* Contenedor del contenido del movimiento */
+.move-content {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* Nombre del jugador que hizo el movimiento */
+.move-player {
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* Descripción de la acción del movimiento */
+.move-action {
+    color: #b0b0b0;
+    font-size: 13px;
+}
+
+/* Timestamp del movimiento */
+.move-time {
+    color: #888;
+    font-size: 11px;
+    font-style: italic;
+    margin-top: 3px;
+}
+
+/* Mensaje cuando no hay movimientos en el historial */
+.empty-history {
+    color: #b0b0b0;
+    text-align: center;
+    padding: 40px;
+    font-size: 16px;
+    font-style: italic;
+    /* Asegurar que el mensaje vacío no cause desplazamiento */
+    margin: auto 0;
+}
+
+/* ============================================
+   DISEÑO RESPONSIVE - TABLETS
+   ============================================ */
+@media (max-width: 1024px) {
+    /* En tablets, el contenido principal se apila verticalmente */
+    .main-content {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .right-section {
+        width: 100%;
+        max-width: 600px;
+    }
+    
+    .history-section {
+        height: 400px;
+    }
+    
+    .board-section {
+        align-self: auto;
+    }
+}
+
+/* ============================================
+   DISEÑO RESPONSIVE - MÓVILES
+   ============================================ */
+@media (max-width: 768px) {
+    /* En móviles, el tablero y jugadores se apilan verticalmente */
+    .board-section {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .players-container {
+        width: 100%;
+        max-width: 400px;
+    }
+    
+    /* El VS se rota 90 grados en móviles */
+    .vs-divider {
+        transform: rotate(90deg);
+    }
+    
+    .board-placeholder {
+        width: 100%;
+    }
+    
+    .player-card {
+        width: 100%;
+    }
 }
 
