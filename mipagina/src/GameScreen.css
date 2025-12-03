@@ -77,6 +77,7 @@
     width: 100%;
     max-width: 1400px;
     align-items: flex-start;
+    align-content: flex-start;
     z-index: 1;
     position: relative;
 }
@@ -89,6 +90,7 @@
     align-items: center;
     min-width: 0;
     justify-content: flex-start;
+    align-self: flex-start;
 }
 
 /* Sección derecha: contiene el historial de partidas */
@@ -98,7 +100,8 @@
     z-index: 1;
     position: relative;
     display: flex;
-    align-items: stretch;
+    align-items: flex-start;
+    align-self: flex-start;
 }
 
 /* ============================================
@@ -356,6 +359,7 @@
 .history-list {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -447,6 +451,8 @@
     padding: 40px;
     font-size: 16px;
     font-style: italic;
+    /* Asegurar que el mensaje vacío no cause desplazamiento */
+    margin: auto 0;
 }
 
 /* ============================================
