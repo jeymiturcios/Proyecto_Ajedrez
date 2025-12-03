@@ -8,7 +8,8 @@ export default function GameScreen() {
     const player1Name = location.state?.player1Name || "Jugador 1";
     const player2Name = location.state?.player2Name || "Jugador 2";
     const player2Color = player1Color === "white" ? "black" : "white";
-    const [turn, setTurn] = useState(player1Color);
+    // En ajedrez, siempre empiezan las blancas, independientemente de quién las tenga
+    const [turn, setTurn] = useState("white");
     
     // Historial de partidas (Lista/Cola) - registra movimientos en orden
     const [gameHistory, setGameHistory] = useState([]);
@@ -16,82 +17,81 @@ export default function GameScreen() {
     // Pila para deshacer jugadas
     const [undoStack, setUndoStack] = useState([]);
     
-    // Refs para igualar alturas
+    // Refs para igualar alturas y alinear posiciones
+    const boardRef = useRef(null);
+    const historyRef = useRef(null);
     const boardSectionRef = useRef(null);
-    const historySectionRef = useRef(null);
     
-    // Efecto para igualar la altura y posición del historial con la del tablero
+    // Crear el tablero de 8x8 como matriz 2D (array de arrays)
+    const createBoard = () => {
+        const board = [];
+        for (let row = 0; row < 8; row++) {
+            const rowArray = [];
+            for (let col = 0; col < 8; col++) {
+                const isLight = (row + col) % 2 === 0;
+                rowArray.push({
+                    row,
+                    col,
+                    isLight,
+                    id: `${row}-${col}`
+                });
+            }
+            board.push(rowArray);
+        }
+        return board;
+    };
+
+    const [board] = useState(createBoard());
+    
+    // Efecto para igualar la altura del historial con la del tablero y alinear verticalmente
     useEffect(() => {
-        const updateHeight = () => {
-            if (boardSectionRef.current && historySectionRef.current) {
-                const boardRect = boardSectionRef.current.getBoundingClientRect();
-                const boardHeight = boardRect.height;
-                const boardTop = boardRect.top;
+        const updateHistoryPosition = () => {
+            if (boardRef.current && historyRef.current && boardSectionRef.current) {
+                // Solo aplicar en pantallas grandes (desktop)
+                const isMobile = window.innerWidth <= 1024;
                 
-                // Aplicar la altura del tablero al historial
-                historySectionRef.current.style.height = `${boardHeight}px`;
-                historySectionRef.current.style.minHeight = `${boardHeight}px`;
-                
-                // Sincronizar la posición vertical
-                const historyRect = historySectionRef.current.getBoundingClientRect();
-                const historyTop = historyRect.top;
-                const offset = boardTop - historyTop;
-                
-                if (Math.abs(offset) > 1) {
-                    historySectionRef.current.style.marginTop = `${offset}px`;
+                if (isMobile) {
+                    // En móviles/tablets, resetear estilos para que el CSS responsive funcione
+                    historyRef.current.style.height = 'auto';
+                    historyRef.current.style.minHeight = 'auto';
+                    historyRef.current.style.maxHeight = 'none';
+                    historyRef.current.style.marginTop = '0px';
+                } else {
+                    // En desktop, igualar altura del historial con la del tablero
+                    const boardHeight = boardRef.current.offsetHeight;
+                    historyRef.current.style.height = `${boardHeight}px`;
+                    historyRef.current.style.minHeight = `${boardHeight}px`;
+                    historyRef.current.style.maxHeight = `${boardHeight}px`;
+                    
+                    // Alinear verticalmente: hacer que el historial comience a la misma altura que el board-section
+                    const boardSectionTop = boardSectionRef.current.getBoundingClientRect().top;
+                    const historyTop = historyRef.current.getBoundingClientRect().top;
+                    const offset = boardSectionTop - historyTop;
+                    
+                    if (Math.abs(offset) > 1) {
+                        historyRef.current.style.marginTop = `${offset}px`;
+                    } else {
+                        historyRef.current.style.marginTop = '0px';
+                    }
                 }
             }
         };
         
-        // Usar requestAnimationFrame para asegurar que el DOM esté renderizado
-        const rafId = requestAnimationFrame(() => {
-            updateHeight();
-            // Doble verificación después de un pequeño delay
-            setTimeout(updateHeight, 50);
-            setTimeout(updateHeight, 200);
-        });
+        // Esperar a que el DOM esté listo y ejecutar varias veces para asegurar
+        const timeoutId1 = setTimeout(updateHistoryPosition, 100);
+        const timeoutId2 = setTimeout(updateHistoryPosition, 300);
+        const timeoutId3 = setTimeout(updateHistoryPosition, 500);
         
-        window.addEventListener('resize', updateHeight);
-        
-        return () => {
-            cancelAnimationFrame(rafId);
-            window.removeEventListener('resize', updateHeight);
-        };
-    }, [gameHistory]);
-    
-    // Efecto adicional para actualizar la altura cuando el componente se monta
-    useEffect(() => {
-        const updateHeight = () => {
-            if (boardSectionRef.current && historySectionRef.current) {
-                const boardRect = boardSectionRef.current.getBoundingClientRect();
-                const boardHeight = boardRect.height;
-                const boardTop = boardRect.top;
-                
-                historySectionRef.current.style.height = `${boardHeight}px`;
-                historySectionRef.current.style.minHeight = `${boardHeight}px`;
-                
-                // Sincronizar la posición vertical
-                const historyRect = historySectionRef.current.getBoundingClientRect();
-                const historyTop = historyRect.top;
-                const offset = boardTop - historyTop;
-                
-                if (Math.abs(offset) > 1) {
-                    historySectionRef.current.style.marginTop = `${offset}px`;
-                }
-            }
-        };
-        
-        // Esperar a que el DOM esté completamente listo
-        const timeoutId1 = setTimeout(updateHeight, 100);
-        const timeoutId2 = setTimeout(updateHeight, 300);
-        const timeoutId3 = setTimeout(updateHeight, 500);
+        // Actualizar también cuando cambie el tamaño de la ventana
+        window.addEventListener('resize', updateHistoryPosition);
         
         return () => {
             clearTimeout(timeoutId1);
             clearTimeout(timeoutId2);
             clearTimeout(timeoutId3);
+            window.removeEventListener('resize', updateHistoryPosition);
         };
-    }, []);
+    }, []); // Array vacío: solo se ejecuta al montar y desmontar
 
     // Función para hacer un movimiento de prueba
     const makeMove = (move) => {
@@ -179,22 +179,23 @@ export default function GameScreen() {
                                 {player2Color === turn && <div className="turn-indicator">Tu turno</div>}
                             </div>
                         </div>
-                        <div className="board-placeholder">
-                            <div className="placeholder-content">
-                                <div className="placeholder-icon">♟️</div>
-                                <p className="placeholder-text">Tablero de ajedrez</p>
-                                <p className="placeholder-subtext">Próximamente...</p>
-                            </div>
+                        <div className="chess-board" ref={boardRef}>
+                            {board.flat().map((square) => (
+                                <div
+                                    key={square.id}
+                                    className={`chess-square ${square.isLight ? 'light' : 'dark'}`}
+                                />
+                            ))}
                         </div>
                     </div>
                 </div>
 
                 <div className="right-section">
-                    <div className="history-section" ref={historySectionRef}>
-                        <h2 className="history-title">Historial de Partidas</h2>
+                    <div className="history-section" ref={historyRef}>
+                        <h2 className="history-title">Historial</h2>
                         <div className="history-list">
                             {gameHistory.length === 0 ? (
-                                <p className="empty-history">No hay movimientos registrados aún</p>
+                                <p className="empty-history">Sin movimientos</p>
                             ) : (
                                 gameHistory.map((move, index) => (
                                     <div key={move.id} className="history-item">

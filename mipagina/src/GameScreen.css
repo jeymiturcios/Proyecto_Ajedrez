@@ -7,10 +7,13 @@
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
-    padding: 40px 20px;
+    padding: 20px 15px;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Efecto de fondo animado con puntos (estrellas) que se mueven */
@@ -38,15 +41,15 @@
 /* Sección del encabezado con el título y el icono del juego */
 .game-header {
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 20px;
     z-index: 1;
     position: relative;
 }
 
 /* Icono del juego (peón de ajedrez) con animación flotante */
 .game-icon {
-    font-size: 60px;
-    margin-bottom: 15px;
+    font-size: 48px;
+    margin-bottom: 8px;
     animation: float 3s ease-in-out infinite;
 }
 
@@ -59,11 +62,11 @@
 /* Título principal del juego */
 .game-title {
     color: #ffffff;
-    font-size: 38px;
+    font-size: 35px;
     margin: 0;
     font-weight: 700;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
 /* ============================================
@@ -73,13 +76,14 @@
 .main-content {
     display: flex;
     flex-direction: row;
-    gap: 30px;
+    gap: 20px;
     width: 100%;
     max-width: 1400px;
     align-items: flex-start;
     align-content: flex-start;
     z-index: 1;
     position: relative;
+    box-sizing: border-box;
 }
 
 /* Sección izquierda: contiene controles, jugadores, VS y tablero */
@@ -91,6 +95,8 @@
     min-width: 0;
     justify-content: flex-start;
     align-self: flex-start;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Sección derecha: contiene el historial de partidas */
@@ -102,6 +108,7 @@
     display: flex;
     align-items: flex-start;
     align-self: flex-start;
+    box-sizing: border-box;
 }
 
 /* ============================================
@@ -111,25 +118,25 @@
 .players-container {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
     align-items: center;
     justify-content: center;
     z-index: 1;
     position: relative;
-    min-width: 200px;
+    min-width: 180px;
 }
 
 /* Tarjeta individual de cada jugador */
 .player-card {
     width: 100%;
-    min-width: 200px;
+    min-width: 180px;
     background: rgba(255, 255, 255, 0.05);
     border: 2px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    padding: 20px;
+    border-radius: 15px;
+    padding: 12px 15px;
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
 }
@@ -144,7 +151,7 @@
 
 /* Icono del rey de ajedrez en la tarjeta del jugador */
 .player-icon {
-    font-size: 48px;
+    font-size: 36px;
     filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
 }
 
@@ -153,22 +160,22 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 3px;
 }
 
 /* Etiqueta con el nombre del jugador */
 .player-label {
     color: #b0b0b0;
-    font-size: 14px;
+    font-size: 11px;
     font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
 /* Color de las piezas del jugador (Blancas/Negras) */
 .player-color {
     color: #ffffff;
-    font-size: 24px;
+    font-size: 18px;
     font-weight: 700;
 }
 
@@ -176,9 +183,9 @@
 .turn-indicator {
     background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
     color: #1a1a1a;
-    padding: 8px 20px;
-    border-radius: 20px;
-    font-size: 14px;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 11px;
     font-weight: 700;
     animation: pulse 2s ease-in-out infinite;
 }
@@ -197,11 +204,12 @@
     display: flex;
     flex-direction: row;
     align-items: stretch;
-    gap: 20px;
+    gap: 15px;
     width: 100%;
     max-width: 1000px;
     z-index: 1;
     position: relative;
+    box-sizing: border-box;
 }
 
 /* Divisor "VS" que separa visualmente a los dos jugadores */
@@ -209,59 +217,59 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 60px;
-    height: 60px;
+    width: 45px;
+    height: 45px;
     background: rgba(212, 175, 55, 0.2);
     border: 2px solid #d4af37;
     border-radius: 50%;
     color: #d4af37;
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 700;
     flex-shrink: 0;
-    box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
 }
 
-/* Placeholder del tablero de ajedrez (cuadrado con aspecto 1:1) */
-.board-placeholder {
+/* Tablero de ajedrez 8x8 */
+.chess-board {
     flex: 1;
     aspect-ratio: 1;
-    background: rgba(0, 0, 0, 0.3);
-    border: 3px solid rgba(212, 175, 55, 0.3);
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    border: 2px solid rgba(212, 175, 55, 0.5);
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(10px);
     z-index: 1;
     position: relative;
     min-width: 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* Contenido interno del placeholder del tablero */
-.placeholder-content {
-    text-align: center;
+/* Casilla individual del tablero */
+.chess-square {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
 }
 
-/* Icono dentro del placeholder del tablero */
-.placeholder-icon {
-    font-size: 80px;
-    margin-bottom: 20px;
-    opacity: 0.5;
+/* Casillas claras (blancas) */
+.chess-square.light {
+    background-color: #f0d9b5;
 }
 
-/* Texto principal del placeholder */
-.placeholder-text {
-    color: #ffffff;
-    font-size: 24px;
-    font-weight: 700;
-    margin: 0 0 10px 0;
+/* Casillas oscuras (negras) */
+.chess-square.dark {
+    background-color: #b58863;
 }
 
-/* Texto secundario del placeholder */
-.placeholder-subtext {
-    color: #b0b0b0;
-    font-size: 16px;
-    margin: 0;
+/* Efecto hover en las casillas */
+.chess-square:hover {
+    filter: brightness(1.1);
+    cursor: pointer;
 }
 
 /* ============================================
@@ -270,8 +278,8 @@
 /* Contenedor de los botones de control (deshacer, movimiento de prueba) */
 .game-controls {
     display: flex;
-    gap: 15px;
-    margin-bottom: 30px;
+    gap: 12px;
+    margin-bottom: 20px;
     z-index: 1;
     position: relative;
     width: 100%;
@@ -282,10 +290,10 @@
 /* Estilos base para los botones de control */
 .undo-button,
 .test-move-button {
-    padding: 12px 24px;
+    padding: 8px 16px;
     border: none;
-    border-radius: 12px;
-    font-size: 16px;
+    border-radius: 10px;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -328,31 +336,32 @@
 /* Sección completa del historial de movimientos */
 .history-section {
     width: 100%;
-    background: rgba(0, 0, 0, 0.3);
-    border: 2px solid rgba(212, 175, 55, 0.3);
-    border-radius: 20px;
-    padding: 25px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    border-radius: 12px;
+    padding: 15px;
     backdrop-filter: blur(10px);
     z-index: 1;
     position: relative;
     display: flex;
     flex-direction: column;
-    min-height: 600px;
-    height: 600px;
+    /* Altura será establecida por JavaScript para coincidir con el tablero */
+    height: auto;
     overflow: hidden;
     align-self: flex-start;
-    margin-top: 0;
+    /* margin-top será establecido por JavaScript para alinear con el board-section */
 }
 
 /* Título del historial */
 .history-title {
-    color: #ffffff;
-    font-size: 20px;
-    font-weight: 700;
-    margin: 0 0 20px 0;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0 0 12px 0;
     text-align: center;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
     flex-shrink: 0;
+    letter-spacing: 0.5px;
 }
 
 /* Lista de movimientos (usa estructura de cola - FIFO) */
@@ -362,149 +371,95 @@
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 5px;
     min-height: 0;
-    max-height: 100%;
-    /* Mantener el scroll siempre visible para evitar desplazamientos */
     scrollbar-gutter: stable;
-    /* Asegurar que el scroll comience desde arriba */
     scroll-behavior: smooth;
 }
 
-/* Estilos personalizados para la barra de desplazamiento */
+/* Estilos personalizados para la barra de desplazamiento - más discreta */
 .history-list::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
 }
 
 .history-list::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 10px;
 }
 
 .history-list::-webkit-scrollbar-thumb {
-    background: rgba(212, 175, 55, 0.5);
+    background: rgba(212, 175, 55, 0.3);
     border-radius: 10px;
 }
 
 .history-list::-webkit-scrollbar-thumb:hover {
-    background: rgba(212, 175, 55, 0.7);
+    background: rgba(212, 175, 55, 0.4);
 }
 
-/* Item individual de cada movimiento en el historial */
+/* Item individual de cada movimiento en el historial - diseño vertical */
 .history-item {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding: 12px 15px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-    border-left: 3px solid #d4af37;
-    transition: all 0.2s ease;
+    gap: 4px;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    border-left: 3px solid rgba(212, 175, 55, 0.4);
+    transition: background-color 0.15s ease;
 }
 
-/* Efecto hover en los items del historial */
+/* Efecto hover más sutil - sin movimiento */
 .history-item:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateX(5px);
+    background: rgba(255, 255, 255, 0.06);
 }
 
-/* Número del movimiento en el historial */
+/* Número del movimiento en el historial - grande y destacado arriba */
 .move-number {
-    color: #d4af37;
+    color: rgba(212, 175, 55, 0.9);
     font-weight: 700;
-    font-size: 16px;
-    margin-bottom: 5px;
+    font-size: 20px;
+    margin-bottom: 2px;
 }
 
-/* Contenedor del contenido del movimiento */
+/* Contenedor del contenido del movimiento - diseño vertical */
 .move-content {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
 }
 
-/* Nombre del jugador que hizo el movimiento */
+/* Nombre del jugador que hizo el movimiento - blanco y bold */
 .move-player {
-    color: #ffffff;
-    font-weight: 600;
-    font-size: 14px;
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 700;
+    font-size: 16px;
 }
 
 /* Descripción de la acción del movimiento */
 .move-action {
-    color: #b0b0b0;
-    font-size: 13px;
+    color: rgba(176, 176, 176, 0.8);
+    font-size: 15px;
+    font-weight: 400;
 }
 
-/* Timestamp del movimiento */
+/* Timestamp del movimiento - más pequeño y discreto abajo */
 .move-time {
-    color: #888;
-    font-size: 11px;
+    color: rgba(136, 136, 136, 0.7);
+    font-size: 12px;
     font-style: italic;
-    margin-top: 3px;
+    font-weight: 400;
+    margin-top: 2px;
 }
 
 /* Mensaje cuando no hay movimientos en el historial */
 .empty-history {
-    color: #b0b0b0;
+    color: rgba(176, 176, 176, 0.5);
     text-align: center;
-    padding: 40px;
+    padding: 20px;
     font-size: 16px;
     font-style: italic;
-    /* Asegurar que el mensaje vacío no cause desplazamiento */
     margin: auto 0;
-}
-
-/* ============================================
-   DISEÑO RESPONSIVE - TABLETS
-   ============================================ */
-@media (max-width: 1024px) {
-    /* En tablets, el contenido principal se apila verticalmente */
-    .main-content {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .right-section {
-        width: 100%;
-        max-width: 600px;
-    }
-    
-    .history-section {
-        height: 400px;
-    }
-    
-    .board-section {
-        align-self: auto;
-    }
-}
-
-/* ============================================
-   DISEÑO RESPONSIVE - MÓVILES
-   ============================================ */
-@media (max-width: 768px) {
-    /* En móviles, el tablero y jugadores se apilan verticalmente */
-    .board-section {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .players-container {
-        width: 100%;
-        max-width: 400px;
-    }
-    
-    /* El VS se rota 90 grados en móviles */
-    .vs-divider {
-        transform: rotate(90deg);
-    }
-    
-    .board-placeholder {
-        width: 100%;
-    }
-    
-    .player-card {
-        width: 100%;
-    }
 }
 
