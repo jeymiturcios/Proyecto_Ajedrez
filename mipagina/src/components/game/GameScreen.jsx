@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import './GameScreen.css';
+import HistoryPanel from './HistoryPanel';
+import { ChessPiece } from '../../models/ChessPiece';
+import '../../styles/GameScreen.css';
 
 export default function GameScreen() {
     const location = useLocation();
@@ -17,24 +19,37 @@ export default function GameScreen() {
     // Pila para deshacer jugadas
     const [undoStack, setUndoStack] = useState([]);
     
-    // Refs para igualar alturas y alinear posiciones
-    const boardRef = useRef(null);
-    const historyRef = useRef(null);
-    const boardSectionRef = useRef(null);
+    // Ref para el tablero (se pasa al HistoryPanel para igualar alturas)
+    const boardSectionRef = useRef(null); 
     
-    // Crear el tablero de 8x8 como matriz 2D (array de arrays)
+    // Crear el tablero de 8x8 
     const createBoard = () => {
         const board = [];
         for (let row = 0; row < 8; row++) {
             const rowArray = [];
+
             for (let col = 0; col < 8; col++) {
-                const isLight = (row + col) % 2 === 0;
-                rowArray.push({
-                    row,
-                    col,
-                    isLight,
-                    id: `${row}-${col}`
-                });
+                let piece = null;
+             
+                //Fila 0: Piezas negras principales
+                if(row === 0){
+                    const pieces =['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'];
+                    piece = new ChessPiece(pieces[col], 'black', {row, col});
+                }
+                //Fila 1: Peones negros
+                else if(row === 1){
+                    piece = new ChessPiece('pawn', 'black', {row, col});
+                }
+                //Fila 6: Peones blancos
+                else if(row === 6){
+                    piece = new ChessPiece('pawn', 'white', {row, col});
+                }
+                //Fila 7: Piezas blancas principales
+                else if(row === 7){
+                    const pieces =['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'];
+                    piece = new ChessPiece(pieces[col], 'white', {row, col});
+                }
+                rowArray.push({piece});
             }
             board.push(rowArray);
         }
@@ -42,45 +57,6 @@ export default function GameScreen() {
     };
 
     const [board] = useState(createBoard());
-    
-    // Efecto para igualar la altura del historial con la del tablero y alinear verticalmente
-    useEffect(() => {
-        const updateHistoryPosition = () => {
-            if (boardRef.current && historyRef.current && boardSectionRef.current) {
-                // Igualar altura del historial con la del tablero
-                const boardHeight = boardRef.current.offsetHeight;
-                historyRef.current.style.height = `${boardHeight}px`;
-                historyRef.current.style.minHeight = `${boardHeight}px`;
-                historyRef.current.style.maxHeight = `${boardHeight}px`;
-                
-                // Alinear verticalmente: hacer que el historial comience a la misma altura que el board-section
-                const boardSectionTop = boardSectionRef.current.getBoundingClientRect().top;
-                const historyTop = historyRef.current.getBoundingClientRect().top;
-                const offset = boardSectionTop - historyTop;
-                
-                if (Math.abs(offset) > 1) {
-                    historyRef.current.style.marginTop = `${offset}px`;
-                } else {
-                    historyRef.current.style.marginTop = '0px';
-                }
-            }
-        };
-        
-        // Esperar a que el DOM esté listo y ejecutar varias veces para asegurar
-        const timeoutId1 = setTimeout(updateHistoryPosition, 100);
-        const timeoutId2 = setTimeout(updateHistoryPosition, 300);
-        const timeoutId3 = setTimeout(updateHistoryPosition, 500);
-        
-        // Actualizar también cuando cambie el tamaño de la ventana
-        window.addEventListener('resize', updateHistoryPosition);
-        
-        return () => {
-            clearTimeout(timeoutId1);
-            clearTimeout(timeoutId2);
-            clearTimeout(timeoutId3);
-            window.removeEventListener('resize', updateHistoryPosition);
-        };
-    }, []); // Array vacío: solo se ejecuta al montar y desmontar
 
     // Función para hacer un movimiento de prueba
     const makeMove = (move) => {
@@ -122,8 +98,8 @@ export default function GameScreen() {
     return (
         <div className="game-container">
             <div className="game-header">
-                <div className="game-icon">♟️</div>
-                <h1 className="game-title">Juego de Ajedrez</h1>
+                <div className="game-icon"></div>
+                <h1 className="game-title">Juego de Ajedrez ♟️</h1>
             </div>
             
             <div className="main-content">
@@ -168,37 +144,33 @@ export default function GameScreen() {
                                 {player2Color === turn && <div className="turn-indicator">Tu turno</div>}
                             </div>
                         </div>
-                        <div className="chess-board" ref={boardRef}>
-                            {board.flat().map((square) => (
-                                <div
-                                    key={square.id}
-                                    className={`chess-square ${square.isLight ? 'light' : 'dark'}`}
-                                />
-                            ))}
+                        <div className="chess-board">
+                            {board.map((row, rowIndex) => 
+                            row.map((square, colIndex) => {
+                                const isLightSquare = (rowIndex + colIndex) % 2 === 0;
+                                return (
+                                    <div
+                                        key={`${rowIndex}-${colIndex}`}
+                                        className={`chess-square ${isLightSquare ? "light" : "dark"}`}
+                                    >   
+                                    {square.piece && (
+                                        <span className="piece">
+                                            {square.piece.getSymbol()}
+                                        </span>
+                                    )}
+                                    </div>
+                                );
+                            })
+                            )}
                         </div>
                     </div>
                 </div>
 
                 <div className="right-section">
-                    <div className="history-section" ref={historyRef}>
-                        <h2 className="history-title">Historial</h2>
-                        <div className="history-list">
-                            {gameHistory.length === 0 ? (
-                                <p className="empty-history">Sin movimientos</p>
-                            ) : (
-                                gameHistory.map((move, index) => (
-                                    <div key={move.id} className="history-item">
-                                        <span className="move-number">{index + 1}.</span>
-                                        <div className="move-content">
-                                            <span className="move-player">{move.playerName}</span>
-                                            <span className="move-action">{move.move}</span>
-                                            <span className="move-time">{move.timestamp}</span>
-                                        </div>
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                    </div>
+                    <HistoryPanel 
+                        gameHistory={gameHistory} 
+                        boardSectionRef={boardSectionRef}
+                    />
                 </div>
             </div>
         </div>

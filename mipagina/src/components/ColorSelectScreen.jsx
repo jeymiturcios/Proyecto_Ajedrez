@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './ColorSelectScreen.css';
+import '../styles/ColorSelectScreen.css';
 
 export default function ColorSelectScreen() {
     const [player1Name, setPlayer1Name] = useState('');

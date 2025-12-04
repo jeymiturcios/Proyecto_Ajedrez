@@ -1,8 +1,8 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import ColorSelectScreen from "./ColorSelectScreen";
-import GameScreen from "./GameScreen";
-import "./App.css";
+import ColorSelectScreen from "./components/ColorSelectScreen";
+import GameScreen from "./components/game/GameScreen";
+import "./styles/App.css";
 
 function App() {
   return (
