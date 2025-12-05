@@ -7,11 +7,11 @@
     flex-direction: column;
     align-items: center;
     height: 100vh;
-    padding: 20px 15px;
+    max-height: 100vh;
+    padding: 15px 15px;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
     position: relative;
-    overflow-x: hidden;
-    overflow-y: hidden;
+    overflow: hidden;
     width: 100%;
     box-sizing: border-box;
 }
@@ -41,7 +41,7 @@
 /* Sección del encabezado con el título y el icono del juego */
 .game-header {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     z-index: 1;
     position: relative;
     flex-shrink: 0;
@@ -63,7 +63,7 @@
 /* Título principal del juego */
 .game-title {
     color: #ffffff;
-    font-size: 35px;
+    font-size: 28px;
     margin: 0;
     font-weight: 700;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
@@ -87,7 +87,7 @@
     flex: 1;
     min-height: 0;
     overflow: hidden;
-    justify-content: flex-start;
+    justify-content: center;
     padding: 0 20px;
 }
 
@@ -106,7 +106,7 @@
     margin-right: 0;
 }
 
-/* Sección derecha: contiene el historial de partidas */
+/* Sección derecha: contiene el historial de partidas y movimientos posibles */
 .right-section {
     width: 280px;
     min-width: 250px;
@@ -119,6 +119,21 @@
     align-self: flex-start;
     margin-left: 0;
     margin-top: 0;
+    margin-right: 0;
+    max-height: calc(100vh - 100px);
+}
+
+/* Contenedor de paneles derechos */
+.right-panels-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    align-items: stretch;
+    justify-content: flex-start;
+    height: 100%;
+    max-height: 100%;
+    overflow: hidden;
 }
 
 /* ============================================
@@ -146,10 +161,19 @@
     border-radius: 15px;
     padding: 12px 15px;
     display: flex;
-    align-items: center;
-    gap: 15px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
+}
+
+/* Contenedor horizontal para icono y detalles */
+.player-card-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
 }
 
 /* Estado activo de la tarjeta del jugador (cuando es su turno) */
@@ -207,13 +231,39 @@
     50% { opacity: 0.8; }
 }
 
+/* Contenedor de piezas capturadas */
+.captured-pieces {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    min-height: 24px;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+/* Pieza capturada individual */
+.captured-piece {
+    font-size: 20px;
+    line-height: 1;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+    display: inline-block;
+}
+
+.captured-piece:hover {
+    opacity: 1;
+}
+
 /* ============================================
    SECCIÓN DEL TABLERO
    ============================================ */
 /* Contenedor que agrupa las tarjetas de jugadores, VS y el tablero */
 .board-section {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     gap: 15px;
     width: 100%;
@@ -225,6 +275,26 @@
     min-height: 0;
     overflow: visible;
     justify-content: center;
+}
+
+/* Contenedor horizontal para jugadores y tablero */
+.players-and-board {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Sección de jugadores con botón deshacer */
+.players-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    flex-shrink: 0;
 }
 
 /* Divisor "VS" que separa visualmente a los dos jugadores */
@@ -243,6 +313,7 @@
     flex-shrink: 0;
     box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
 }
+
 
 /* Tablero de ajedrez 8x8 */
 .chess-board {
@@ -273,11 +344,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
     position: relative;
     overflow: visible;
     padding: 2px;
     box-sizing: border-box;
+    cursor: pointer;
 }
 
 /* Casillas claras (blancas) */
@@ -290,10 +362,46 @@
     background-color: #b58863;
 }
 
-/* Efecto hover en las casillas */
+/* Casilla seleccionada */
+.chess-square.selected {
+    background-color: rgba(212, 175, 55, 0.4) !important;
+    box-shadow: inset 0 0 0 2px rgba(212, 175, 55, 0.6);
+}
+
+/* Casilla con movimiento válido */
+.chess-square.valid-move {
+    position: relative;
+}
+
+/* Indicador de movimiento válido */
+.move-indicator {
+    position: absolute;
+    width: 30%;
+    height: 30%;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.chess-square.valid-move:hover .move-indicator {
+    background-color: rgba(212, 175, 55, 0.4);
+    width: 35%;
+    height: 35%;
+}
+
+/* Pieza seleccionada */
+.piece.selected-piece {
+    filter: drop-shadow(0 0 4px rgba(212, 175, 55, 0.5));
+    transform: scale(1.05);
+}
+
+/* Efecto hover en las casillas - más sutil */
 .chess-square:hover {
-    filter: brightness(1.1);
-    cursor: pointer;
+    filter: brightness(1.05);
+}
+
+.chess-square:hover:not(.selected) {
+    background-color: rgba(212, 175, 55, 0.15);
 }
 
 /* Estilos para las piezas de ajedrez */
@@ -332,23 +440,19 @@
 /* ============================================
    CONTROLES DEL JUEGO
    ============================================ */
-/* Contenedor de los botones de control (deshacer, movimiento de prueba) */
-.game-controls {
+/* Contenedor del botón deshacer debajo de las tarjetas */
+.undo-control-container {
     display: flex;
-    gap: 12px;
-    margin-bottom: 20px;
+    justify-content: center;
     z-index: 1;
     position: relative;
     width: 100%;
-    max-width: 1000px;
-    justify-content: center;
     flex-shrink: 0;
 }
 
-/* Estilos base para los botones de control */
-.undo-button,
-.test-move-button {
-    padding: 8px 16px;
+/* Botón para deshacer la última jugada (usa pila) */
+.undo-button {
+    padding: 10px 20px;
     border: none;
     border-radius: 10px;
     font-size: 15px;
@@ -356,10 +460,6 @@
     cursor: pointer;
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
-}
-
-/* Botón para deshacer la última jugada (usa pila) */
-.undo-button {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #ffffff;
 }
@@ -374,18 +474,6 @@
 .undo-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-}
-
-/* Botón para hacer un movimiento de prueba */
-.test-move-button {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    color: #ffffff;
-}
-
-/* Efecto hover del botón de movimiento de prueba */
-.test-move-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
 }
 
 /* ============================================
@@ -404,9 +492,8 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    flex-shrink: 0;
-    /* La altura será establecida por JavaScript para coincidir con el tablero */
-    min-height: 400px;
+    flex: 1;
+    min-height: 0;
     /* Asegurar que no se superponga con el tablero */
     margin-left: 0;
     margin-top: 0;
@@ -442,17 +529,14 @@
 .history-list {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
     gap: 5px;
     min-height: 0;
     scrollbar-gutter: stable;
     scroll-behavior: smooth;
-    /* Prevenir que el contenido afecte el layout del contenedor padre */
-    contain: strict;
-    /* Aislar completamente el contenido */
-    isolation: isolate;
-    /* Altura máxima para prevenir expansión */
+    /* Permitir scroll cuando el contenido exceda la altura disponible */
     max-height: 100%;
 }
 
@@ -542,4 +626,134 @@
     padding: 20px;
     font-size: 16px;
     font-style: italic;
+}
+
+/* ============================================
+   PANEL DE MOVIMIENTOS POSIBLES (Árbol/Grafo)
+   ============================================ */
+/* Sección de movimientos posibles */
+.possible-moves-section {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    border-radius: 12px;
+    padding: 10px;
+    backdrop-filter: blur(10px);
+    z-index: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    max-height: 180px;
+}
+
+/* Encabezado del panel de movimientos */
+.possible-moves-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(76, 175, 80, 0.2);
+    flex-shrink: 0;
+}
+
+.tree-icon {
+    font-size: 18px;
+    filter: drop-shadow(0 0 4px rgba(76, 175, 80, 0.6));
+}
+
+.possible-moves-title {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    letter-spacing: 0.5px;
+}
+
+/* Información de la pieza */
+.piece-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    padding: 5px 8px;
+    background: rgba(76, 175, 80, 0.1);
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.piece-label {
+    color: rgba(76, 175, 80, 0.9);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.piece-icon {
+    font-size: 20px;
+    filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+/* Lista de movimientos */
+.moves-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 120px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+}
+
+.moves-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.moves-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.moves-list::-webkit-scrollbar-thumb {
+    background: rgba(76, 175, 80, 0.3);
+    border-radius: 10px;
+}
+
+.moves-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(76, 175, 80, 0.4);
+}
+
+/* Opción de movimiento individual */
+.move-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: rgba(50, 50, 50, 0.6);
+    border-radius: 8px;
+    border-left: 2px solid rgba(76, 175, 80, 0.5);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.move-option:hover {
+    background: rgba(76, 175, 80, 0.15);
+    border-left-color: rgba(76, 175, 80, 0.8);
+    transform: translateX(2px);
+}
+
+.move-arrow {
+    color: rgba(76, 175, 80, 0.8);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.move-notation {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
 }

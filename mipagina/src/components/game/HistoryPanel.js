@@ -20,15 +20,29 @@ export default function HistoryPanel({ gameHistory, boardSectionRef }) {
             const boardHeight = boardSectionRef.current.offsetHeight;
             if (boardHeight === 0) return false; // Aún no está renderizado
             
+            // Obtener el contenedor padre (right-panels-container)
+            const parentContainer = historySectionRef.current.parentElement;
+            if (!parentContainer) return false;
+            
+            // Calcular altura disponible considerando el panel de movimientos posibles
+            const possibleMovesPanel = parentContainer.querySelector('.possible-moves-section');
+            const possibleMovesHeight = possibleMovesPanel && possibleMovesPanel.offsetHeight > 0 
+                ? possibleMovesPanel.offsetHeight + 10 
+                : 0; // +10 por el gap
+            
+            // Usar altura similar al tablero pero ajustada por el panel de movimientos
+            const availableHeight = boardHeight - possibleMovesHeight;
+            const targetHeight = Math.max(availableHeight, 200); // Mínimo 200px
+            
             const boardSectionTop = boardSectionRef.current.getBoundingClientRect().top;
             const historyTop = historySectionRef.current.getBoundingClientRect().top;
             const offset = boardSectionTop - historyTop;
             
             // Establecer altura fija usando CSS variables para que sea más robusto
-            historySectionRef.current.style.setProperty('--history-height', `${boardHeight}px`);
-            historySectionRef.current.style.setProperty('height', `${boardHeight}px`, 'important');
-            historySectionRef.current.style.setProperty('min-height', `${boardHeight}px`, 'important');
-            historySectionRef.current.style.setProperty('max-height', `${boardHeight}px`, 'important');
+            historySectionRef.current.style.setProperty('--history-height', `${targetHeight}px`);
+            historySectionRef.current.style.setProperty('height', `${targetHeight}px`, 'important');
+            historySectionRef.current.style.setProperty('min-height', `${targetHeight}px`, 'important');
+            historySectionRef.current.style.setProperty('max-height', `${targetHeight}px`, 'important');
             
             // Ajustar el margin-top para alinear verticalmente con el tablero
             if (Math.abs(offset) > 2) {
@@ -78,7 +92,7 @@ export default function HistoryPanel({ gameHistory, boardSectionRef }) {
             }
         };
         
-        // Esperar a que el DOM esté completamente listo
+        // Esperar a que el DOM esté completamente listo (un poco más para que el panel de movimientos se renderice)
         const initialTimeout = setTimeout(() => {
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
@@ -87,17 +101,23 @@ export default function HistoryPanel({ gameHistory, boardSectionRef }) {
                     });
                 });
             });
-        }, 100);
+        }, 150);
         
         // Manejar cambios de tamaño de ventana
         const handleResize = () => {
             if (boardSectionRef.current && historySectionRef.current && historySectionRef.current.getAttribute('data-fixed') === 'true') {
                 const boardHeight = boardSectionRef.current.offsetHeight;
                 if (boardHeight > 0) {
-                    historySectionRef.current.style.setProperty('--history-height', `${boardHeight}px`);
-                    historySectionRef.current.style.setProperty('height', `${boardHeight}px`, 'important');
-                    historySectionRef.current.style.setProperty('min-height', `${boardHeight}px`, 'important');
-                    historySectionRef.current.style.setProperty('max-height', `${boardHeight}px`, 'important');
+                    const parentContainer = historySectionRef.current.parentElement;
+                    const possibleMovesPanel = parentContainer ? parentContainer.querySelector('.possible-moves-section') : null;
+                    const possibleMovesHeight = possibleMovesPanel ? possibleMovesPanel.offsetHeight + 10 : 0;
+                    const availableHeight = boardHeight - possibleMovesHeight;
+                    const targetHeight = Math.max(availableHeight, 200);
+                    
+                    historySectionRef.current.style.setProperty('--history-height', `${targetHeight}px`);
+                    historySectionRef.current.style.setProperty('height', `${targetHeight}px`, 'important');
+                    historySectionRef.current.style.setProperty('min-height', `${targetHeight}px`, 'important');
+                    historySectionRef.current.style.setProperty('max-height', `${targetHeight}px`, 'important');
                 }
             }
         };
