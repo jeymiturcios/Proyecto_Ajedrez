@@ -1,3 +1,12 @@
+/**
+ * Componente principal de la pantalla de juego
+ * @module GameScreen
+ * @description Componente que gestiona la interfaz del juego de ajedrez, incluyendo:
+ *              - Renderizado del tablero de ajedrez 8x8
+ *              - Manejo de interacciones del usuario (clic, selección, movimientos)
+ *              - Gestión del estado del juego (turnos, historial, piezas capturadas)
+ *              - Integración con paneles laterales (historial, movimientos posibles, partidas guardadas)
+ */
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import HistoryPanel from './HistoryPanel';
@@ -15,6 +24,11 @@ import {
 } from '../../utils/StorageManager';
 import '../../styles/GameScreen.css';
 
+/**
+ * Componente principal de la pantalla de juego
+ * @function GameScreen
+ * @returns {JSX.Element} Componente completo del juego de ajedrez
+ */
 export default function GameScreen() {
     const location = useLocation();
     const initialPlayer1Color = location.state?.player1Color || "white";

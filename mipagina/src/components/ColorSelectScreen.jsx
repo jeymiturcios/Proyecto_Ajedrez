@@ -1,7 +1,18 @@
+/**
+ * Componente de pantalla de selección de color y configuración de jugadores
+ * @module ColorSelectScreen
+ * @description Permite a los jugadores ingresar sus nombres y elegir el color de las piezas.
+ *              El jugador 1 elige su color y el jugador 2 recibe el color opuesto automáticamente.
+ */
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/ColorSelectScreen.css';
 
+/**
+ * Componente de selección de color para los jugadores
+ * @function ColorSelectScreen
+ * @returns {JSX.Element} Componente de configuración inicial del juego
+ */
 export default function ColorSelectScreen() {
     const [player1Name, setPlayer1Name] = useState('');
     const [player2Name, setPlayer2Name] = useState('');

@@ -1,45 +1,71 @@
 import { ChessPiece } from "../models/ChessPiece";
 
 /**
- * Clase para manejar la lógica del juego de ajedrez
- * Incluye: Matriz 8x8, validación de movimientos, pila de deshacer, historial
+ * Clase principal para manejar la lógica del juego de ajedrez
+ * @class ChessGame
+ * @description Implementa el motor de ajedrez completo con:
+ *              - Tablero 8x8 (Matriz)
+ *              - Validación de movimientos según reglas del ajedrez
+ *              - Sistema de deshacer usando Pila (Stack)
+ *              - Historial de movimientos usando Lista/Cola
+ *              - Detección de jaque, jaque mate y empate
  */
 export class ChessGame {
+    /**
+     * Constructor de la clase ChessGame
+     * @constructor
+     * @param {string} player1Color - Color del jugador 1: 'white' o 'black'
+     * @param {string} player1Name - Nombre del jugador 1
+     * @param {string} player2Name - Nombre del jugador 2
+     * @param {Object} savedState - Estado guardado del juego para restaurar (opcional)
+     */
     constructor(player1Color, player1Name, player2Name, savedState = null) {
+        /** @type {string} Color del jugador 1 */
         this.player1Color = player1Color;
+        
+        /** @type {string} Nombre del jugador 1 */
         this.player1Name = player1Name;
+        
+        /** @type {string} Nombre del jugador 2 */
         this.player2Name = player2Name;
+        
+        /** @type {string} Color del jugador 2 (opuesto al jugador 1) */
         this.player2Color = player1Color === "white" ? "black" : "white";
         
         if (savedState) {
             // Restaurar desde un estado guardado
             this.restoreFromState(savedState);
         } else {
-            // Matriz 8x8: Tablero de ajedrez
+            /** @type {Array<Array<Object>>} Matriz 8x8: Tablero de ajedrez */
             this.board = this.createBoard();
             
-            // Pila (Stack): Sistema de deshacer movimientos
+            /** @type {Array<Object>} Pila (Stack): Sistema de deshacer movimientos */
             this.undoStack = [];
             
-            // Lista/Cola: Historial de partidas en orden
+            /** @type {Array<Object>} Lista/Cola: Historial de partidas en orden cronológico */
             this.gameHistory = [];
             
-            // Piezas capturadas por cada jugador
+            /** @type {Object} Piezas capturadas por cada jugador: {white: Array, black: Array} */
             this.capturedPieces = {
                 white: [],
                 black: []
             };
             
-            // Turno actual (siempre empiezan las blancas)
+            /** @type {string} Turno actual (siempre empiezan las blancas) */
             this.currentTurn = "white";
         }
         
-        // Pieza seleccionada
+        /** @type {Object|null} Pieza seleccionada actualmente: {row: number, col: number, piece: ChessPiece} */
         this.selectedPiece = null;
+        
+        /** @type {Array<Object>} Movimientos válidos para la pieza seleccionada */
         this.validMoves = [];
     }
 
-    // Restaurar el estado del juego desde un objeto serializado
+    /**
+     * Restaura el estado del juego desde un objeto serializado
+     * @param {Object} savedState - Estado del juego serializado
+     */
     restoreFromState(savedState) {
         // Restaurar tablero
         this.board = [];
@@ -95,7 +121,11 @@ export class ChessGame {
         this.undoStack = savedState.undoStack || [];
     }
 
-    // Crear el tablero inicial 8x8
+    /**
+     * Crea el tablero inicial 8x8 con todas las piezas en su posición inicial
+     * @returns {Array<Array<Object>>} Matriz 8x8 representando el tablero
+     * @description Estructura de datos: Matriz bidimensional donde cada celda contiene {piece: ChessPiece|null}
+     */
     createBoard() {
         const board = [];
         for (let row = 0; row < 8; row++) {
@@ -128,7 +158,12 @@ export class ChessGame {
         return board;
     }
 
-    // Seleccionar una pieza
+    /**
+     * Selecciona una pieza en el tablero y calcula sus movimientos válidos
+     * @param {number} row - Fila de la pieza a seleccionar
+     * @param {number} col - Columna de la pieza a seleccionar
+     * @returns {boolean} true si la pieza fue seleccionada, false en caso contrario
+     */
     selectPiece(row, col) {
         const square = this.board[row][col];
         
@@ -152,7 +187,13 @@ export class ChessGame {
         return true;
     }
 
-    // Calcular movimientos válidos para una pieza (Árbol/Grafo de análisis)
+    /**
+     * Calcula los movimientos válidos para una pieza en una posición específica
+     * @param {number} row - Fila de la pieza
+     * @param {number} col - Columna de la pieza
+     * @returns {Array<Object>} Array de movimientos válidos: [{row: number, col: number}, ...]
+     * @description Filtra movimientos que dejarían al rey en jaque, implementando un análisis tipo árbol/grafo
+     */
     calculateValidMoves(row, col) {
         const square = this.board[row][col];
         if (!square.piece) return [];
@@ -168,7 +209,15 @@ export class ChessGame {
         return validMoves;
     }
 
-    // Verificar si un movimiento dejaría al rey en jaque
+    /**
+     * Verifica si un movimiento dejaría al rey del color actual en jaque
+     * @param {number} fromRow - Fila de origen
+     * @param {number} fromCol - Columna de origen
+     * @param {number} toRow - Fila de destino
+     * @param {number} toCol - Columna de destino
+     * @returns {boolean} true si el movimiento dejaría al rey en jaque
+     * @description Simula el movimiento en un tablero temporal para verificar el estado del rey
+     */
     wouldMovePutKingInCheck(fromRow, fromCol, toRow, toCol) {
         // Crear un tablero temporal para simular el movimiento
         const tempBoard = this.cloneBoard();
@@ -200,7 +249,14 @@ export class ChessGame {
         return this.isSquareUnderAttack(kingRow, kingCol, opponentColor, tempBoard);
     }
 
-    // Verificar si una casilla está bajo ataque
+    /**
+     * Verifica si una casilla está bajo ataque por piezas del color oponente
+     * @param {number} row - Fila de la casilla
+     * @param {number} col - Columna de la casilla
+     * @param {string} attackingColor - Color de las piezas atacantes: 'white' o 'black'
+     * @param {Array<Array<Object>>} board - Tablero a analizar (por defecto el tablero actual)
+     * @returns {boolean} true si la casilla está bajo ataque
+     */
     isSquareUnderAttack(row, col, attackingColor, board = this.board) {
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
@@ -216,7 +272,15 @@ export class ChessGame {
         return false;
     }
 
-    // Mover una pieza
+    /**
+     * Mueve una pieza desde una posición a otra y actualiza el estado del juego
+     * @param {number} fromRow - Fila de origen
+     * @param {number} fromCol - Columna de origen
+     * @param {number} toRow - Fila de destino
+     * @param {number} toCol - Columna de destino
+     * @returns {boolean} true si el movimiento fue exitoso, false en caso contrario
+     * @description Guarda el estado en la pila de deshacer y agrega el movimiento al historial
+     */
     movePiece(fromRow, fromCol, toRow, toCol) {
         const fromSquare = this.board[fromRow][fromCol];
         const toSquare = this.board[toRow][toCol];
@@ -279,7 +343,16 @@ export class ChessGame {
         return true;
     }
 
-    // Formatear el movimiento para el historial
+    /**
+     * Formatea un movimiento en notación de ajedrez para el historial
+     * @param {ChessPiece} piece - Pieza que se movió
+     * @param {number} fromRow - Fila de origen
+     * @param {number} fromCol - Columna de origen
+     * @param {number} toRow - Fila de destino
+     * @param {number} toCol - Columna de destino
+     * @param {boolean} isCapture - Indica si fue una captura
+     * @returns {string} Movimiento formateado (ej: "Rey e1e2")
+     */
     formatMove(piece, fromRow, fromCol, toRow, toCol, isCapture) {
         const fromSquare = String.fromCharCode(97 + fromCol) + (8 - fromRow);
         const toSquare = String.fromCharCode(97 + toCol) + (8 - toRow);
@@ -287,7 +360,11 @@ export class ChessGame {
         return `${piece.getName()} ${fromSquare}${captureSymbol}${toSquare}`;
     }
 
-    // Deshacer el último movimiento (usando la pila)
+    /**
+     * Deshace el último movimiento usando la pila (Stack)
+     * @returns {boolean} true si se deshizo exitosamente, false si no hay movimientos para deshacer
+     * @description Implementa el patrón LIFO (Last In, First Out) usando una pila
+     */
     undoMove() {
         if (this.undoStack.length === 0) return false;
 
@@ -327,7 +404,11 @@ export class ChessGame {
         return true;
     }
 
-    // Clonar el tablero para simulaciones
+    /**
+     * Crea una copia profunda del tablero para simulaciones sin afectar el estado original
+     * @returns {Array<Array<Object>>} Copia clonada del tablero
+     * @description Útil para validar movimientos sin modificar el estado actual
+     */
     cloneBoard() {
         const cloned = [];
         for (let row = 0; row < 8; row++) {
@@ -347,37 +428,60 @@ export class ChessGame {
         return cloned;
     }
 
-    // Obtener el tablero actual
+    /**
+     * Obtiene el tablero actual del juego
+     * @returns {Array<Array<Object>>} Matriz 8x8 del tablero
+     */
     getBoard() {
         return this.board;
     }
 
-    // Obtener el historial
+    /**
+     * Obtiene el historial completo de movimientos
+     * @returns {Array<Object>} Lista de movimientos en orden cronológico
+     */
     getHistory() {
         return this.gameHistory;
     }
 
-    // Obtener el turno actual
+    /**
+     * Obtiene el color del jugador cuyo turno es actual
+     * @returns {string} 'white' o 'black'
+     */
     getCurrentTurn() {
         return this.currentTurn;
     }
 
-    // Obtener la pieza seleccionada
+    /**
+     * Obtiene la pieza seleccionada actualmente
+     * @returns {Object|null} Pieza seleccionada o null si no hay ninguna
+     */
     getSelectedPiece() {
         return this.selectedPiece;
     }
 
-    // Obtener movimientos válidos
+    /**
+     * Obtiene los movimientos válidos de la pieza seleccionada
+     * @returns {Array<Object>} Array de movimientos válidos
+     */
     getValidMoves() {
         return this.validMoves;
     }
 
-    // Obtener piezas capturadas
+    /**
+     * Obtiene las piezas capturadas por cada jugador
+     * @returns {Object} Objeto con arrays de piezas capturadas: {white: Array, black: Array}
+     */
     getCapturedPieces() {
         return this.capturedPieces;
     }
 
-    // Encontrar la posición del rey de un color
+    /**
+     * Encuentra la posición del rey de un color específico en el tablero
+     * @param {string} color - Color del rey a buscar: 'white' o 'black'
+     * @param {Array<Array<Object>>} board - Tablero donde buscar (por defecto el tablero actual)
+     * @returns {Object|null} Posición del rey: {row: number, col: number} o null si no se encuentra
+     */
     findKingPosition(color, board = this.board) {
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
@@ -390,7 +494,11 @@ export class ChessGame {
         return null;
     }
 
-    // Verificar si el rey de un color está en jaque
+    /**
+     * Verifica si el rey de un color está en jaque
+     * @param {string} color - Color del rey: 'white' o 'black'
+     * @returns {boolean} true si el rey está en jaque
+     */
     isKingInCheck(color) {
         const kingPos = this.findKingPosition(color);
         if (!kingPos) return false;
@@ -399,7 +507,12 @@ export class ChessGame {
         return this.isSquareUnderAttack(kingPos.row, kingPos.col, opponentColor);
     }
 
-    // Verificar si el rey de un color está en jaque mate
+    /**
+     * Verifica si el rey de un color está en jaque mate
+     * @param {string} color - Color del rey: 'white' o 'black'
+     * @returns {boolean} true si el rey está en jaque mate
+     * @description Verifica que el rey esté en jaque y que no haya movimientos legales disponibles
+     */
     isKingInCheckmate(color) {
         // Primero verificar si está en jaque
         if (!this.isKingInCheck(color)) return false;
@@ -422,7 +535,11 @@ export class ChessGame {
         return true;
     }
 
-    // Verificar si hay empate (ahogado - rey no está en jaque pero no puede moverse)
+    /**
+     * Verifica si hay empate por ahogado (rey no está en jaque pero no puede moverse)
+     * @param {string} color - Color del rey: 'white' o 'black'
+     * @returns {boolean} true si hay empate por ahogado
+     */
     isStalemate(color) {
         // Si está en jaque, no es ahogado
         if (this.isKingInCheck(color)) return false;
@@ -444,7 +561,10 @@ export class ChessGame {
         return true;
     }
 
-    // Obtener el estado del juego
+    /**
+     * Obtiene el estado actual del juego (jugando, jaque, jaque mate, empate)
+     * @returns {Object} Estado del juego con propiedades: status, winner (si aplica), message
+     */
     getGameStatus() {
         const whiteInCheck = this.isKingInCheck('white');
         const blackInCheck = this.isKingInCheck('black');

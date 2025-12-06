@@ -1,5 +1,7 @@
 /**
  * Gestor de almacenamiento local usando LocalStorage
+ * @module StorageManager
+ * @description Módulo que gestiona el almacenamiento persistente del juego usando LocalStorage.
  * 
  * LocalStorage es ideal para este proyecto porque:
  * - Los datos del juego no son extremadamente grandes

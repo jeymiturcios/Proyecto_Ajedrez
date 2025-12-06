@@ -1,11 +1,37 @@
+/**
+ * Clase que representa una pieza de ajedrez
+ * @class ChessPiece
+ * @description Modela las características y comportamientos de una pieza de ajedrez,
+ *              incluyendo su tipo, color, posición y movimientos válidos según las reglas del ajedrez.
+ */
 export class ChessPiece {
+    /**
+     * Constructor de la clase ChessPiece
+     * @constructor
+     * @param {string} type - Tipo de pieza: 'pawn', 'rook', 'knight', 'bishop', 'queen', 'king'
+     * @param {string} color - Color de la pieza: 'white' o 'black'
+     * @param {Object} position - Posición en el tablero: {row: number, col: number}
+     */
     constructor(type, color, position){
-        this.type=type; // 'pawn', 'rook', 'knight', 'bishop', 'queen', 'king'
-        this.color=color; // 'white' or 'black'
-        this.position=position;// {row, col}
-        this.hasMoved=false; //Para el primer movimiento (importante para peones y enroque)
+        /** @type {string} Tipo de pieza: 'pawn', 'rook', 'knight', 'bishop', 'queen', 'king' */
+        this.type=type;
+        
+        /** @type {string} Color de la pieza: 'white' o 'black' */
+        this.color=color;
+        
+        /** @type {Object} Posición en el tablero: {row: number, col: number} */
+        this.position=position;
+        
+        /** @type {boolean} Indica si la pieza ya se ha movido (importante para peones y enroque) */
+        this.hasMoved=false;
     }
-    //Obtener el simbolo Unicode del pieza
+    /**
+     * Obtiene el símbolo Unicode de la pieza según su tipo y color
+     * @returns {string} Símbolo Unicode de la pieza
+     * @example
+     * const piece = new ChessPiece('king', 'white', {row: 0, col: 4});
+     * piece.getSymbol(); // Retorna '♔'
+     */
     getSymbol(){
         const symbols={
             white:{
@@ -27,8 +53,15 @@ export class ChessPiece {
         };
         return symbols[this.color][this.type];
         }
-        //Nombre de la pieza en español
-        getName(){
+        
+    /**
+     * Obtiene el nombre de la pieza en español
+     * @returns {string} Nombre de la pieza en español
+     * @example
+     * const piece = new ChessPiece('queen', 'white', {row: 0, col: 3});
+     * piece.getName(); // Retorna 'Reina'
+     */
+    getName(){
             const names={
                 king: 'Rey',
                 queen: 'Reina',
@@ -40,18 +73,32 @@ export class ChessPiece {
             return names[this.type];
             }
 
-            //Clonar la pieza
+    /**
+     * Crea una copia clonada de la pieza
+     * @returns {ChessPiece} Nueva instancia de ChessPiece con las mismas propiedades
+     */
     clone(){
         const cloned = new ChessPiece(this.type, this.color, {...this.position});
         cloned.hasMoved = this.hasMoved;
         return cloned;
     }
+    
+    /**
+     * Mueve la pieza a una nueva posición y marca que ya se ha movido
+     * @param {number} row - Fila destino
+     * @param {number} col - Columna destino
+     */
     moveTo(row, col){
         this.position={row, col};
         this.hasMoved=true;
     }
 
-    // Obtener movimientos posibles básicos (sin considerar obstáculos ni jaque)
+    /**
+     * Obtiene los movimientos posibles básicos de la pieza
+     * @param {Array<Array<Object>>} board - Tablero 8x8 con las piezas
+     * @returns {Array<Object>} Array de movimientos posibles: [{row: number, col: number}, ...]
+     * @description Calcula los movimientos sin considerar si dejarían al rey en jaque
+     */
     getPossibleMoves(board) {
         const { row, col } = this.position;
         const moves = [];
@@ -74,7 +121,12 @@ export class ChessPiece {
         }
     }
 
-    // Movimientos del peón
+    /**
+     * Calcula los movimientos posibles del peón
+     * @param {Array<Array<Object>>} board - Tablero 8x8
+     * @returns {Array<Object>} Array de movimientos válidos para el peón
+     * @description Implementa las reglas del peón: avance, doble avance inicial, y captura diagonal
+     */
     getPawnMoves(board) {
         const { row, col } = this.position;
         const moves = [];
@@ -118,7 +170,12 @@ export class ChessPiece {
         return moves;
     }
 
-    // Movimientos de la torre (horizontal/vertical)
+    /**
+     * Calcula los movimientos posibles de la torre
+     * @param {Array<Array<Object>>} board - Tablero 8x8
+     * @returns {Array<Object>} Array de movimientos válidos para la torre
+     * @description La torre se mueve horizontal o verticalmente hasta encontrar una pieza o el borde
+     */
     getRookMoves(board) {
         const { row, col } = this.position;
         const moves = [];
@@ -151,7 +208,12 @@ export class ChessPiece {
         return moves;
     }
 
-    // Movimientos del caballo (en L)
+    /**
+     * Calcula los movimientos posibles del caballo
+     * @param {Array<Array<Object>>} board - Tablero 8x8
+     * @returns {Array<Object>} Array de movimientos válidos para el caballo
+     * @description El caballo se mueve en forma de L y puede saltar sobre otras piezas
+     */
     getKnightMoves(board) {
         const { row, col } = this.position;
         const moves = [];
@@ -177,7 +239,12 @@ export class ChessPiece {
         return moves;
     }
 
-    // Movimientos del alfil (diagonal)
+    /**
+     * Calcula los movimientos posibles del alfil
+     * @param {Array<Array<Object>>} board - Tablero 8x8
+     * @returns {Array<Object>} Array de movimientos válidos para el alfil
+     * @description El alfil se mueve en diagonal hasta encontrar una pieza o el borde
+     */
     getBishopMoves(board) {
         const { row, col } = this.position;
         const moves = [];
@@ -210,12 +277,22 @@ export class ChessPiece {
         return moves;
     }
 
-    // Movimientos de la reina (combinación de torre y alfil)
+    /**
+     * Calcula los movimientos posibles de la reina
+     * @param {Array<Array<Object>>} board - Tablero 8x8
+     * @returns {Array<Object>} Array de movimientos válidos para la reina
+     * @description La reina combina los movimientos de la torre y el alfil
+     */
     getQueenMoves(board) {
         return [...this.getRookMoves(board), ...this.getBishopMoves(board)];
     }
 
-    // Movimientos del rey (1 casilla en cualquier dirección)
+    /**
+     * Calcula los movimientos posibles del rey
+     * @param {Array<Array<Object>>} board - Tablero 8x8
+     * @returns {Array<Object>} Array de movimientos válidos para el rey
+     * @description El rey se mueve una casilla en cualquier dirección
+     */
     getKingMoves(board) {
         const { row, col } = this.position;
         const moves = [];
@@ -240,7 +317,14 @@ export class ChessPiece {
         return moves;
     }
 
-    // Verificar si una casilla es válida para moverse
+    /**
+     * Verifica si una casilla es válida para moverse
+     * @param {number} row - Fila de la casilla
+     * @param {number} col - Columna de la casilla
+     * @param {Array<Array<Object>>} board - Tablero 8x8
+     * @param {boolean} isCapture - Indica si es un movimiento de captura
+     * @returns {boolean} true si la casilla es válida, false en caso contrario
+     */
     isValidSquare(row, col, board, isCapture) {
         if (!this.isInBounds(row, col)) return false;
         
@@ -255,7 +339,12 @@ export class ChessPiece {
         }
     }
 
-    // Verificar si las coordenadas están dentro del tablero
+    /**
+     * Verifica si las coordenadas están dentro de los límites del tablero (8x8)
+     * @param {number} row - Fila a verificar
+     * @param {number} col - Columna a verificar
+     * @returns {boolean} true si está dentro de los límites, false en caso contrario
+     */
     isInBounds(row, col) {
         return row >= 0 && row < 8 && col >= 0 && col < 8;
     }
