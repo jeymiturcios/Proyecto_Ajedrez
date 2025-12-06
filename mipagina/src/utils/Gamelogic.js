@@ -5,33 +5,94 @@ import { ChessPiece } from "../models/ChessPiece";
  * Incluye: Matriz 8x8, validación de movimientos, pila de deshacer, historial
  */
 export class ChessGame {
-    constructor(player1Color, player1Name, player2Name) {
+    constructor(player1Color, player1Name, player2Name, savedState = null) {
         this.player1Color = player1Color;
         this.player1Name = player1Name;
         this.player2Name = player2Name;
         this.player2Color = player1Color === "white" ? "black" : "white";
         
-        // Matriz 8x8: Tablero de ajedrez
-        this.board = this.createBoard();
+        if (savedState) {
+            // Restaurar desde un estado guardado
+            this.restoreFromState(savedState);
+        } else {
+            // Matriz 8x8: Tablero de ajedrez
+            this.board = this.createBoard();
+            
+            // Pila (Stack): Sistema de deshacer movimientos
+            this.undoStack = [];
+            
+            // Lista/Cola: Historial de partidas en orden
+            this.gameHistory = [];
+            
+            // Piezas capturadas por cada jugador
+            this.capturedPieces = {
+                white: [],
+                black: []
+            };
+            
+            // Turno actual (siempre empiezan las blancas)
+            this.currentTurn = "white";
+        }
         
-        // Pila (Stack): Sistema de deshacer movimientos
-        this.undoStack = [];
+        // Pieza seleccionada
+        this.selectedPiece = null;
+        this.validMoves = [];
+    }
+
+    // Restaurar el estado del juego desde un objeto serializado
+    restoreFromState(savedState) {
+        // Restaurar tablero
+        this.board = [];
+        for (let row = 0; row < 8; row++) {
+            const rowArray = [];
+            for (let col = 0; col < 8; col++) {
+                const squareData = savedState.board[row][col];
+                let piece = null;
+                
+                if (squareData.piece) {
+                    piece = new ChessPiece(
+                        squareData.piece.type,
+                        squareData.piece.color,
+                        { row, col }
+                    );
+                    piece.hasMoved = squareData.piece.hasMoved || false;
+                }
+                
+                rowArray.push({ piece });
+            }
+            this.board.push(rowArray);
+        }
         
-        // Lista/Cola: Historial de partidas en orden
-        this.gameHistory = [];
+        // Restaurar turno
+        this.currentTurn = savedState.currentTurn || "white";
         
-        // Piezas capturadas por cada jugador
+        // Restaurar historial (asegurarse de que esté vacío si no hay historial guardado)
+        this.gameHistory = savedState.gameHistory ? [...savedState.gameHistory] : [];
+        
+        // Restaurar piezas capturadas (necesitamos recrear las piezas)
         this.capturedPieces = {
             white: [],
             black: []
         };
         
-        // Turno actual (siempre empiezan las blancas)
-        this.currentTurn = "white";
+        if (savedState.capturedPieces) {
+            ['white', 'black'].forEach(color => {
+                if (savedState.capturedPieces[color]) {
+                    this.capturedPieces[color] = savedState.capturedPieces[color].map(pieceData => {
+                        const piece = new ChessPiece(
+                            pieceData.type,
+                            pieceData.color,
+                            pieceData.position || { row: -1, col: -1 }
+                        );
+                        piece.hasMoved = pieceData.hasMoved || false;
+                        return piece;
+                    });
+                }
+            });
+        }
         
-        // Pieza seleccionada
-        this.selectedPiece = null;
-        this.validMoves = [];
+        // Restaurar pila de deshacer (simplificado - solo estructura básica)
+        this.undoStack = savedState.undoStack || [];
     }
 
     // Crear el tablero inicial 8x8
@@ -314,5 +375,126 @@ export class ChessGame {
     // Obtener piezas capturadas
     getCapturedPieces() {
         return this.capturedPieces;
+    }
+
+    // Encontrar la posición del rey de un color
+    findKingPosition(color, board = this.board) {
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                const square = board[r][c];
+                if (square.piece && square.piece.type === 'king' && square.piece.color === color) {
+                    return { row: r, col: c };
+                }
+            }
+        }
+        return null;
+    }
+
+    // Verificar si el rey de un color está en jaque
+    isKingInCheck(color) {
+        const kingPos = this.findKingPosition(color);
+        if (!kingPos) return false;
+        
+        const opponentColor = color === 'white' ? 'black' : 'white';
+        return this.isSquareUnderAttack(kingPos.row, kingPos.col, opponentColor);
+    }
+
+    // Verificar si el rey de un color está en jaque mate
+    isKingInCheckmate(color) {
+        // Primero verificar si está en jaque
+        if (!this.isKingInCheck(color)) return false;
+
+        // Verificar si hay algún movimiento legal disponible para cualquier pieza del color
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                const square = this.board[r][c];
+                if (square.piece && square.piece.color === color) {
+                    const validMoves = this.calculateValidMoves(r, c);
+                    if (validMoves.length > 0) {
+                        // Si hay al menos un movimiento válido, no es jaque mate
+                        return false;
+                    }
+                }
+            }
+        }
+        
+        // Si está en jaque y no hay movimientos válidos, es jaque mate
+        return true;
+    }
+
+    // Verificar si hay empate (ahogado - rey no está en jaque pero no puede moverse)
+    isStalemate(color) {
+        // Si está en jaque, no es ahogado
+        if (this.isKingInCheck(color)) return false;
+
+        // Verificar si hay algún movimiento legal disponible
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                const square = this.board[r][c];
+                if (square.piece && square.piece.color === color) {
+                    const validMoves = this.calculateValidMoves(r, c);
+                    if (validMoves.length > 0) {
+                        return false;
+                    }
+                }
+            }
+        }
+        
+        // Si no está en jaque pero no puede moverse, es ahogado
+        return true;
+    }
+
+    // Obtener el estado del juego
+    getGameStatus() {
+        const whiteInCheck = this.isKingInCheck('white');
+        const blackInCheck = this.isKingInCheck('black');
+        const whiteInCheckmate = this.isKingInCheckmate('white');
+        const blackInCheckmate = this.isKingInCheckmate('black');
+        const whiteStalemate = this.isStalemate('white');
+        const blackStalemate = this.isStalemate('black');
+
+        if (whiteInCheckmate) {
+            return {
+                status: 'checkmate',
+                winner: 'black',
+                message: '¡Jaque Mate! Las Negras ganan'
+            };
+        }
+        
+        if (blackInCheckmate) {
+            return {
+                status: 'checkmate',
+                winner: 'white',
+                message: '¡Jaque Mate! Las Blancas ganan'
+            };
+        }
+
+        if (whiteStalemate || blackStalemate) {
+            return {
+                status: 'stalemate',
+                message: '¡Empate por Ahogado!'
+            };
+        }
+
+        if (whiteInCheck) {
+            return {
+                status: 'check',
+                inCheck: 'white',
+                message: '¡Jaque! Las Blancas están en jaque'
+            };
+        }
+
+        if (blackInCheck) {
+            return {
+                status: 'check',
+                inCheck: 'black',
+                message: '¡Jaque! Las Negras están en jaque'
+            };
+        }
+
+        return {
+            status: 'playing',
+            message: null
+        };
     }
 }
